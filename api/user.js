@@ -170,6 +170,8 @@ module.exports = function(app) {
 
     app.get('/api/login', (req, res) => {
         const [username, password] = [req.query.username, req.query.password];
+        console.log('jana on api', username, password)
+        
         Users.findOne({username: username}, (err, data) => {
             if (err) {
                 return res.status(401).json({

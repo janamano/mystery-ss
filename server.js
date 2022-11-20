@@ -8,6 +8,12 @@ console.log('jana', process.env.PORT)
 app.use(cors());
 app.use(express.json());
 const path = require("path")
+let server = require('http').Server(app);
+// var https = require('https');
+// var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+// var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+
+// var credentials = {key: privateKey, cert: certificate};
 // app.use(require("./routes/record"));
 // get driver connection
 // const dbo = require("./db/conn");
@@ -27,7 +33,8 @@ app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
 
-app.listen(port, () => {
+
+server.listen(port, () => {
   // perform a database connection when server starts
 //   dbo.connectToServer(function (err) {
 //     if (err) console.error(err);
@@ -35,3 +42,11 @@ app.listen(port, () => {
 //   });
   console.log(`Server is running on port: ${port}`);
 });
+// app.listen(port, () => {
+//   // perform a database connection when server starts
+// //   dbo.connectToServer(function (err) {
+// //     if (err) console.error(err);
+ 
+// //   });
+//   console.log(`Server is running on port: ${port}`);
+// });

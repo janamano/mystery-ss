@@ -158,7 +158,6 @@ export default function Home() {
         for (let i = 0; i < groupMembersUsernames.length - 1; i++) {
             assignments[groupMembersUsernames[i].toString()] = groupMembersUsernames[i+1].toString()
         }
-        console.log(groupMembersUsernames)
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
         await fetch("/api/createAssignment", {

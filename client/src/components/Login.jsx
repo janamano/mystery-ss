@@ -16,6 +16,7 @@ export default function Login() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
+        console.log('jana on handler start')
         await fetch("/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
@@ -24,6 +25,8 @@ export default function Login() {
           })
           .then(res => res.json())
           .then(res => {
+            console.log('jana on handler', res)
+
             if (res.status == 'error') {
                 setMessage(res.message)
             } else {
@@ -38,7 +41,7 @@ export default function Login() {
                 })
             }
           })
-          .catch(err => console.log(err))
+          .catch(err => console.log('jana', err))
 
     }, [password, username]);
 
