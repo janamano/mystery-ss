@@ -25,7 +25,7 @@ export default function Home() {
 
     const handleCreateGroupClick = useCallback(async () => {
         const newGroupId = cryptoRandomString({length: 10});
-        await fetch("http://localhost:5000/api/createGroup", {
+        await fetch("/api/createGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export default function Home() {
 
     const handleJoinGroupClick = useCallback(async (event) => {
         event.preventDefault();
-        await fetch("http://localhost:5000/api/joinGroup", {
+        await fetch("/api/joinGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function Home() {
     }, [userInpurGroupId, email, username, setMessage, setgroupId, setIsHost]);
 
     const getGroupMembers = useCallback(async () => {
-        await fetch("http://localhost:5000/api/getMembers?group=" + groupId, {
+        await fetch("/api/getMembers?group=" + groupId, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"
@@ -107,7 +107,7 @@ export default function Home() {
     useEffect(() => {
         console.log('didmount')
         const fetchData = async () => {
-            await fetch("http://localhost:5000/api/getAssignee?username=" + username, {
+            await fetch("/api/getAssignee?username=" + username, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -158,9 +158,10 @@ export default function Home() {
         for (let i = 0; i < groupMembersUsernames.length - 1; i++) {
             assignments[groupMembersUsernames[i].toString()] = groupMembersUsernames[i+1].toString()
         }
+        console.log(groupMembersUsernames)
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
-        await fetch("http://localhost:5000/api/createAssignment", {
+        await fetch("/api/createAssignment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

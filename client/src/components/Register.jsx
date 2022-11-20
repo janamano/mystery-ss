@@ -20,7 +20,7 @@ export default function Register() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch("http://localhost:5000/api/signup", {
+        await fetch("/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

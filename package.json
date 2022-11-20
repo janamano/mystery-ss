@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +20,8 @@
     "mongodb": "^4.12.0",
     "mongoose": "^6.7.2",
     "react-router-dom": "^6.4.3"
+  },
+  "engines": {
+    "node": "18.12.1"
   }
 }

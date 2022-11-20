@@ -16,7 +16,7 @@ export default function Login() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch("http://localhost:5000/api/login?username=" + username + "&password=" + password, {
+        await fetch("/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"
