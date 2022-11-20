@@ -178,6 +178,7 @@ module.exports = function(app) {
                     status: 'error', error: err, message: "Cannot login"
                 })
             } else {
+                console.log('data jana', data)
                 if (data.password == password) {
                     return res.status(200).json({
                         status: 'success', data: data
