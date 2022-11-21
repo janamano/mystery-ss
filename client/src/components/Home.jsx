@@ -113,13 +113,17 @@ export default function Home() {
                     "Access-Control-Allow-Origin": "*"
                 }
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log('res', res);
+                return res.json()})
             .then(res => {
                 if (res.status == 'error') {
                     setMessage(res.message)
                 } else {
-                    console.log(res.data)
-                    setAssignee(res.data[0].assignee)
+                    console.log('jana ->',res.data)
+                    if (res.data.length > 0) {
+                        setAssignee(res.data[0].assignee)
+                    }
                 }
             })
             .catch(err => console.log(err))
@@ -141,6 +145,7 @@ export default function Home() {
         let groupMembersUsernames = groupMembers.map((member) => {
             return member.username
         });
+        console.log('jana members before', groupMembersUsernames)
         let currentIndex = groupMembersUsernames.length,  randomIndex;
 
         // While there remain elements to shuffle.
@@ -155,9 +160,14 @@ export default function Home() {
             groupMembersUsernames[randomIndex], groupMembersUsernames[currentIndex]];
         }
 
+        // console.log('jana members after', groupMembersUsernames)
         for (let i = 0; i < groupMembersUsernames.length - 1; i++) {
             assignments[groupMembersUsernames[i].toString()] = groupMembersUsernames[i+1].toString()
         }
+        // console.log('assignments', assignments);
+        console.log('index', groupMembersUsernames.length - 1);
+        console.log('final element', groupMembersUsernames[groupMembersUsernames.length - 1])
+
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
         await fetch("/api/createAssignment", {
@@ -179,7 +189,7 @@ export default function Home() {
           })
           .catch(err => console.log(err))
 
-    }, [])
+    }, [groupMembers, groupId])
 
     return (
         <div>
