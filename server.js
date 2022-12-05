@@ -5,7 +5,11 @@ var mongoose = require('mongoose');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 console.log('jana', process.env.PORT)
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:'+port.toString(), 'https://mystery-santa.onrender.com'
+  ],
+}));
 app.use(express.json());
 const path = require("path")
 let server = require('http').Server(app);
