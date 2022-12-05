@@ -17,7 +17,7 @@ export default function Login() {
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
         console.log('jana on handler start')
-        await fetch("/api/login?username=" + username + "&password=" + password, {
+        await fetch("https://mystery-santa-api.onrender.com/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"

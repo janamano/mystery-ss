@@ -4,15 +4,22 @@ const cors = require("cors");
 var mongoose = require('mongoose');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
-console.log('jana', process.env.PORT)
-app.use(cors({
-  origin: [
-    'http://localhost:'+port.toString(), 'https://mystery-santa.onrender.com'
-  ],
-}));
+console.log('jana', port)
+
 app.use(express.json());
 const path = require("path")
 let server = require('http').Server(app);
+app.use(cors( {
+  origin: (origin, callback) => {
+      if ('https://mystery-santa.onrender.com'.indexOf(origin) !== -1 || !origin) {
+          callback(null, true)
+      } else {
+          callback(new Error('Not allowed by CORS'))
+      }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+}))
 // var https = require('https');
 // var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
 // var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');

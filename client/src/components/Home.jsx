@@ -25,7 +25,7 @@ export default function Home() {
 
     const handleCreateGroupClick = useCallback(async () => {
         const newGroupId = cryptoRandomString({length: 10});
-        await fetch("/api/createGroup", {
+        await fetch("https://mystery-santa-api.onrender.com/api/createGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export default function Home() {
 
     const handleJoinGroupClick = useCallback(async (event) => {
         event.preventDefault();
-        await fetch("/api/joinGroup", {
+        await fetch("https://mystery-santa-api.onrender.com/api/joinGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function Home() {
     }, [userInpurGroupId, email, username, setMessage, setgroupId, setIsHost]);
 
     const getGroupMembers = useCallback(async () => {
-        await fetch("/api/getMembers?group=" + groupId, {
+        await fetch("https://mystery-santa-api.onrender.com/api/getMembers?group=" + groupId, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"
@@ -107,7 +107,7 @@ export default function Home() {
     useEffect(() => {
         console.log('didmount')
         const fetchData = async () => {
-            await fetch("/api/getAssignee?username=" + username, {
+            await fetch("https://mystery-santa-api.onrender.com/api/getAssignee?username=" + username, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -170,7 +170,7 @@ export default function Home() {
 
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
-        await fetch("/api/createAssignment", {
+        await fetch("https://mystery-santa-api.onrender.com/api/createAssignment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

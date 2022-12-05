@@ -179,7 +179,8 @@ module.exports = function(app) {
                 })
             } else {
                 console.log('data jana', data)
-                if (data.password == password) {
+
+                if (data != null && data.password == password) {
                     return res.status(200).json({
                         status: 'success', data: data
                     }) 

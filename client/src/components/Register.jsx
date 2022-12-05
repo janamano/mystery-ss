@@ -20,7 +20,7 @@ export default function Register() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch("/api/signup", {
+        await fetch("https://mystery-santa-api.onrender.com/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
