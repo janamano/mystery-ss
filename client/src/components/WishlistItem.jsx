@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Button, Icon, Item } from 'semantic-ui-react';
-import { LOCAL } from '../endpoints';
+import { REMOTE } from '../endpoints';
 
 export default function WishlistItem(props) {
 

@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
-import { LOCAL } from "../endpoints";
+import { REMOTE } from "../endpoints";
 import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 
@@ -19,7 +19,7 @@ export default function Login() {
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
         console.log('jana on handler start')
-        await fetch(LOCAL + "/api/login?username=" + username + "&password=" + password, {
+        await fetch(REMOTE + "/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"

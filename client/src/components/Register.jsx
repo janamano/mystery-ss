@@ -1,7 +1,7 @@
 // vendor imports
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { LOCAL } from "../endpoints";
+import { REMOTE } from "../endpoints";
 import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 // We import NavLink to utilize the react router.
@@ -21,7 +21,7 @@ export default function Register() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch(LOCAL + "/api/signup", {
+        await fetch(REMOTE + "/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

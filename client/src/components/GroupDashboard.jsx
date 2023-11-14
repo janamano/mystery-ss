@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { LOCAL } from '../endpoints';
+import { REMOTE } from '../endpoints';
 import { Button, Dimmer, Header, Item, Loader, Menu, Segment, Table } from 'semantic-ui-react';
 import { useLocation, useNavigate } from "react-router-dom";
 import WishlistItem from './WishlistItem';
@@ -18,7 +18,7 @@ export default function NoGroupDashboard(props) {
     useEffect(() => {
         console.log('didmount')
         const fetchData = async () => {
-            await fetch(LOCAL + "/api/getAssignee?username=" + props.username, {
+            await fetch(REMOTE + "/api/getAssignee?username=" + props.username, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -40,7 +40,7 @@ export default function NoGroupDashboard(props) {
             .catch(err => console.log(err))
         }
         const fetchGroupMembers = async () => {
-            await fetch(LOCAL + "/api/getMembers?group=" + props.groupId, {
+            await fetch(REMOTE + "/api/getMembers?group=" + props.groupId, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -71,7 +71,7 @@ export default function NoGroupDashboard(props) {
         if (activeItem == assignee + '\'s wishlist') {
             setLoading(true)
             const fetchWishes = async () => {
-                await fetch(LOCAL + "/api/getWishes?username=" + assignee, {
+                await fetch(REMOTE + "/api/getWishes?username=" + assignee, {
                     method: "GET",
                     headers: {
                         "Access-Control-Allow-Origin": "*"
@@ -127,7 +127,7 @@ export default function NoGroupDashboard(props) {
 
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
-        await fetch(LOCAL + "/api/createAssignment", {
+        await fetch(REMOTE + "/api/createAssignment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
