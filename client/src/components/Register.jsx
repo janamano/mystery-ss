@@ -1,7 +1,8 @@
 // vendor imports
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.css";
+import { LOCAL } from "../endpoints";
+import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 // We import NavLink to utilize the react router.
 // import { NavLink } from "react-router-dom";
@@ -20,7 +21,7 @@ export default function Register() {
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch("https://mystery-santa-api.onrender.com/api/signup", {
+        await fetch(LOCAL + "/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -44,31 +45,28 @@ export default function Register() {
     }, [email, password, username]);
 
     return (
-        <div>
-            Super Minimalistic Secret Santa App Register page
-            <button onClick={home}>Go back</button>
-            <form>
-                <div class="form-group">
-                    <label >Email address</label>
-                    <input onChange={(event) => {
+        <Container className="container1">
+            <Header textAlign="center" as='h1'>Super Minimalistic Secret Santa App Register page</Header>
+            <Divider/>
+            <Form>
+                <Form.Group  widths='equal'>
+                    <Form.Input label="Enter Email" onChange={(event) => {
                         setEmail(event.target.value)
-                    }} type="email"   value={email} />
-                </div>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input onChange={(event) => {
+                    }}  value={email} />
+                    <Form.Input label="Enter Username" onChange={(event) => {
                         setUsername(event.target.value)
                     }}  value={username} />
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input onChange={(event) => {
-                        setPassword(event.target.value)
-                    }} type="password" value={password} />
-                </div>
-                <button type="submit" onClick={handleSubmit}>Submit</button>
-            </form>
+                </Form.Group>
+                <Form.Input label='Enter Password' type='password' onChange={(event) => {
+                    setPassword(event.target.value)
+                }} value={password}/>
+                <Form.Group>
+                    <Button type="submit" onClick={handleSubmit}>Submit</Button>
+                    <Button onClick={home}>Go back</Button>
+
+                </Form.Group>
+            </Form>
             <p>{message}</p>
-        </div>
+        </Container>
     );
 }

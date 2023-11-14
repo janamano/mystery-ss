@@ -1,6 +1,9 @@
 require('dotenv').config()
 const emailExistence = require('email-existence');
 var Users = require("../db/User");
+var Groups = require("../db/Group");
+const Group = require('../db/Group');
+
 // const withAuth = require('./middleware');
 // const bcrypt = require('bcryptjs');
 // const Cryptr = require('cryptr');
@@ -47,7 +50,7 @@ var Users = require("../db/User");
 //         else res.status(401).json({ error: 0, msg: "Incorrect Password" });
 //     } 
 //     else return res.status(401).json({ error: 1, msg: "Email does not exists" });
-// }
+// }p
 
 
 // function verifyPass(data, password) {
@@ -74,6 +77,19 @@ function createUser(data, callback) {
     };
     Users.create(user, callback);  
 }
+
+function createGroup(data, callback) {
+    // var salt = bcrypt.genSaltSync(15);
+    // var pass = bcrypt.hashSync(data.password, salt);
+    var group = {
+        groupID: data.groupID,
+        groupName: data.groupName,
+        groupHost: data.groupHost,
+        dollarLimit: data.dollarLimit
+    };
+    Groups.create(group, callback);  
+}
+
 
 module.exports = function(app) {
 
@@ -107,72 +123,111 @@ module.exports = function(app) {
     });
 
     app.put('/api/createGroup', (req, res) => {
-        console.log('jana req', req)
+        console.log('jana data', req.body)
         const filter = { username: req.body.username };
         const update = { group: req.body.group, isHost: true };
         
-        // `doc` is the document _before_ `update` was applied
-        Users.findOneAndUpdate(filter, update, {
-            new: true
+        createGroup({
+            groupID: req.body.group,
+            groupName: req.body.groupName,
+            groupHost: req.body.username,
+            dollarLimit: req.body.dollarLimit
         }, (err, data) => {
-            if (err || !data) {
-                return res.status(400).json({
-                    status: 'error',
-                    error: err,
-                    message: 'Couldn\'t create a group'
-                })
+            if (err) {
+                console.log('data', data)
+                return res.status(400).json({status: 'error', error: err, msg:"Failed to create group."});
+            // todo
             } else {
-                return res.status(200).json({status: 'success', data: data});
-            }
-        });
-    });
-
-    app.put('/api/joinGroup', (req, res) => {
-        console.log('jana req', req)
-        const filter = { group: req.body.group };
-        const update = { group: req.body.group, isHost: false };
-        
-
-        
-        Users.findOne(filter, (err, data) => {
-            if (err || !data) {
-                return res.status(400).json({
-                    status: 'error',
-                    error: err,
-                    message: 'Couldn\'t find that group'
-                })
-            } else {
-                Users.findOneAndUpdate(
-                {
-                    username: req.body.username
-                },
-                update,
-                {
+                Users.findOneAndUpdate(filter, update, {
                     new: true
-                },
-                (err, data) => {
+                }, (err, data) => {
                     if (err || !data) {
                         return res.status(400).json({
                             status: 'error',
                             error: err,
-                            message: 'Couldn\'t update your profile'
+                            message: 'Couldn\'t create a group'
                         })
                     } else {
-                        return res.status(200).json({status: 'success', data: data});
+                        return res.status(200).json({status: 'success', data: {
+                            email: data.email,
+                            username: data.username,
+                            password: data.password,
+                            group: data.group,
+                            isHost: data.isHost,
+                            groupName: req.body.groupName,
+                            groupHost: req.body.username,
+                            dollarLimit: req.body.dollarLimit
+                        }});
                     }
-                })
-            }
+                });
+            } 
         });
+    });
+
+    app.put('/api/joinGroup', async (req, res) => {
+        console.log('jana req', req)
+        var groupInfo = await Groups.findOne({groupID: req.body.group});
+        if (groupInfo != null) {
+            const filter = { group: req.body.group };
+            const update = { group: req.body.group, isHost: false };
+            Users.findOne(filter, (err, data) => {
+                if (err || !data) {
+                    return res.status(400).json({
+                        status: 'error',
+                        error: err,
+                        message: 'Couldn\'t find that group'
+                    })
+                } else {
+                    Users.findOneAndUpdate(
+                    {
+                        username: req.body.username
+                    },
+                    update,
+                    {
+                        new: true
+                    },
+                    (err, data) => {
+                        if (err || !data) {
+                            return res.status(400).json({
+                                status: 'error',
+                                error: err,
+                                message: 'Couldn\'t update your profile'
+                            })
+                        } else {
+                            console.log('jana group info', groupInfo)
+                            return res.status(200).json({status: 'success', data: {
+                                email: data.email,
+                                username: data.username,
+                                password: data.password,
+                                group: data.group,
+                                isHost: data.isHost,
+                                groupName: groupInfo != null ? groupInfo.groupName : '',
+                                groupHost: groupInfo != null ? groupInfo.groupHost : '',
+                                dollarLimit: groupInfo != null ? groupInfo.dollarLimit: 0
+                            }});
+                        }
+                    })
+                }
+            });
+        } else {
+            return res.status(400).json({
+                status: 'error',
+                error: err,
+                message: 'Couldn\'t find that group'
+            })
+        }
+
     });
     // app.post('/api/signout', (req, res) => {
     //     return killSession(req, res);
     // });
 
     app.get('/api/login', (req, res) => {
+        console.log('janasdsd')
         const [username, password] = [req.query.username, req.query.password];
         console.log('jana on api', username, password)
         
-        Users.findOne({username: username}, (err, data) => {
+        Users.findOne({username: username}, async (err, data) => {
             if (err) {
                 return res.status(401).json({
                     status: 'error', error: err, message: "Cannot login"
@@ -181,8 +236,18 @@ module.exports = function(app) {
                 console.log('data jana', data)
 
                 if (data != null && data.password == password) {
+                    var groupInfo = await Groups.findOne({groupID: data.group});
                     return res.status(200).json({
-                        status: 'success', data: data
+                        status: 'success', data: {
+                            email: data.email,
+                            username: data.username,
+                            password: data.password,
+                            group: data.group,
+                            isHost: data.isHost,
+                            groupName: groupInfo != null ? groupInfo.groupName : '',
+                            groupHost: groupInfo != null ? groupInfo.groupHost : '',
+                            dollarLimit: groupInfo != null ? groupInfo.dollarLimit: 0
+                        }
                     }) 
                 } else {
                     return res.status(401).json({
@@ -208,20 +273,4 @@ module.exports = function(app) {
             }
         });
     });
-
-    // app.get('/api/checkToken', withAuth, function(req, res) {
-    //     var token = req.headers.cookie.split("=")[1];
-    //     var decoded = jwt.verify(token, process.env.SECRET);
-    //     var email = decode(decoded.emailhash);
-        
-    //     Users.findByEmail(email, function(err, data) {
-    //         res.status(200).json({
-    //             firstname: data.firstname,
-    //             lastname: data.lastname,
-    //             email: data.email,
-    //             isAdmin: data.admin,
-    //             id: data._id
-    //         });
-    //     });
-    // });
 };

@@ -2,6 +2,8 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
+import { LOCAL } from "../endpoints";
+import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 
 export default function Login() {
@@ -17,7 +19,7 @@ export default function Login() {
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
         console.log('jana on handler start')
-        await fetch("https://mystery-santa-api.onrender.com/api/login?username=" + username + "&password=" + password, {
+        await fetch(LOCAL + "/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"
@@ -36,7 +38,10 @@ export default function Login() {
                         username: res.data.username,
                         password: res.data.password,
                         group: res.data.group,
-                        isHost: res.data.isHost
+                        isHost: res.data.isHost,
+                        groupName: res.data.groupName,
+                        dollarLimit: res.data.dollarLimit,
+                        groupHost: res.data.groupHost,
                     }
                 })
             }
@@ -46,25 +51,24 @@ export default function Login() {
     }, [password, username]);
 
     return (
-        <div>
-            Super Minimalistic Secret Santa App Login page
-            <button onClick={home}>Go back</button>
-            <form>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input onChange={(event) => {
-                        setUsername(event.target.value)
-                    }}  value={username} />
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input onChange={(event) => {
-                        setPassword(event.target.value)
-                    }} type="password" value={password} />
-                </div>
-                <button type="submit" onClick={handleSubmit}>Login</button>
-            </form>
-            <p>{message}</p>
-        </div>
+        // <div>
+            <Container className="container1">
+                <Header textAlign="center" as='h1'>Super Minimalistic Secret Santa App Login page</Header>
+                <Divider/>
+                <Form>
+                    <Form.Input label="Enter Username" onChange={(event) => {
+                            setUsername(event.target.value)
+                        }}  value={username} />
+                    <Form.Input label='Enter Password' type='password' onChange={(event) => {
+                            setPassword(event.target.value)
+                        }} value={password}/>
+                    <Form.Group>
+                        <Form.Button type="submit" onClick={handleSubmit}>Login</Form.Button>
+                        <Button onClick={home}>Go back</Button>
+                    </Form.Group>
+                
+                </Form>
+                <p>{message}</p>
+            </Container>
     );
 }

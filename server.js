@@ -11,7 +11,7 @@ const path = require("path")
 let server = require('http').Server(app);
 app.use(cors( {
   origin: (origin, callback) => {
-      if ('https://mystery-santa.onrender.com'.indexOf(origin) !== -1 || !origin) {
+    if ('https://mystery-santa.onrender.com'.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
       } else {
           callback(new Error('Not allowed by CORS'))
@@ -36,6 +36,9 @@ mongoose.connect(Db, { useNewUrlParser: true, useUnifiedTopology: true}).catch(f
 });
 const user = require('./api/user.js')(app);
 const assignments = require('./api/assignment.js')(app);
+const groups = require('./api/group.js')(app);
+const wishes = require('./api/wish.js')(app);
+
 app.use(express.static(path.join(__dirname, "client", "build")))
 
 // ...

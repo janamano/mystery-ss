@@ -1,0 +1,32 @@
+.container1 {
+    margin-top: 30px;
+}
+
+.banner {
+    background-color: #e94444;
+    /* width: 670px; */
+    height: 200px;
+    border-radius: 10px;
+    border-color: rgb(27, 162, 54);
+    border-style: ridge;
+    padding-top: 10%;
+}
+
+.form {
+    width: 100%;
+}
+
+.homeContainer {
+    width: auto;
+    padding-left: 25px;
+}
+
+.wishlistModal {
+    align-content: center;
+    margin-left: 200px;
+}
+
+.wishlistButton {
+    margin-bottom: inherit !important;
+}
+
