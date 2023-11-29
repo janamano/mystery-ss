@@ -50,7 +50,6 @@ module.exports = function(app) {
         Assignments.find({}, (err, data) => {
             console.log('-----------------------------------')
             for (let i = 0; data.length - 1; i++) {
-                console.log(data)
                 let username = data[i].user
                 console.log(username)
                 Assignments.findOneAndUpdate({user: username}, {assignee: decrypt(data[i].assignee)}, {new: true}, (err, data) => {
