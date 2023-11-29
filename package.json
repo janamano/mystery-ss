@@ -17,6 +17,7 @@
     "dotenv": "^16.0.3",
     "email-existence": "^0.1.6",
     "express": "^4.18.2",
+    "crypto-js": "^4.2.0",
     "mongodb": "^4.12.0",
     "mongoose": "^6.7.2",
     "react-router-dom": "^6.4.3"
