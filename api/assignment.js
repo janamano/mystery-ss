@@ -15,7 +15,7 @@ const decrypt = (data) => {
 }
 function encrypt(data) {
     var bytes  = CryptoJS.AES.encrypt(data, process.env.SECRET);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    return bytes.toString();
 }
 
 module.exports = function(app) {
