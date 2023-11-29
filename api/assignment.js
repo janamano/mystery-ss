@@ -48,9 +48,12 @@ module.exports = function(app) {
     app.get('/api/getAssignee', (req, res) => {
         const username = req.query.username
         Assignments.find({}, (err, data) => {
+            console.log('-----------------------------------')
             for (let i = 0; data.length - 1; i++) {
                 console.log(data)
-                Assignments.findOneAndUpdate({user: data[i].user}, {assignee: decrypt(data[i].assignee)}, {new: true}, (err, data) => {
+                let username = data[i].user
+                console.log(username)
+                Assignments.findOneAndUpdate({user: username}, {assignee: decrypt(data[i].assignee)}, {new: true}, (err, data) => {
                     console.log(data)
                 })
             }
