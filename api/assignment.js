@@ -46,6 +46,9 @@ module.exports = function(app) {
 
     });
     app.get('/api/getAssignee', (req, res) => {
+        console.log('requester:', req.query.requester != null ? req.query.requester : '');
+        console.log('assignee:', req.query.username)
+
         const username = req.query.username
         Assignments.find({user: username}, (err, data) => {
             // console.log(data)
