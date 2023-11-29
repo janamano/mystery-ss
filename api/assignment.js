@@ -55,7 +55,7 @@ module.exports = function(app) {
                 })
             } else {
                 return res.status(200).json({
-                    status: 'success', data: [{assignee: decrypt(data[0].assignee)}]
+                    status: 'success', data: data
                 }) 
 
             }
