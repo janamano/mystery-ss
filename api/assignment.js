@@ -67,7 +67,7 @@ module.exports = function(app) {
             for (let i = 0; data.length - 1; i++) {
                 let username = data[i].user
                 console.log(username)
-                Assignments.findOneAndUpdate({user: username}, {assignee: decrypt(data[i].assignee)}, {new: true}, (err, data) => {
+                Assignments.findOneAndUpdate({user: username}, {assignee: encrypt(data[i].assignee)}, {new: true}, (err, data) => {
                     console.log(data)
                 })
             }
