@@ -49,6 +49,7 @@ module.exports = function(app) {
         const username = req.query.username
         Assignments.find({}, (err, data) => {
             for (let i = 0; data.length - 1; i++) {
+                console.log(data)
                 Assignments.findOneAndUpdate({user: data[i].user}, {assignee: decrypt(data[i].assignee)}, {new: true}, (err, data) => {
                     console.log(data)
                 })
