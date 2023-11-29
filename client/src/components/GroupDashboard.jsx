@@ -22,6 +22,10 @@ export default function NoGroupDashboard(props) {
     }
     const decrypt = (data) => {
         var bytes  = CryptoJS.AES.decrypt(data, process.env.REACT_APP_SECRET);  // pass IV
+        console.log('jana ------------')
+        console.log(process.env.REACT_APP_SECRET)
+        console.log(process.env)
+        console.log('jana ------------')
         return bytes.toString(CryptoJS.enc.Utf8);
     }
     useEffect(() => {
