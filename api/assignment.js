@@ -47,31 +47,6 @@ module.exports = function(app) {
     });
     app.get('/api/getAssignee', (req, res) => {
         const username = req.query.username
-        const data = [
-            {user:"kajaroni", assignee: "youngniils"},
-            {user:"youngniils", assignee: "bkhan1995"},
-            {user:"Shanqiti", assignee: "kajaroni"},
-            {user:"kathrynk", assignee: "Merooroo"},
-            {user:"Merooroo", assignee: "michael"},
-            {user:"michael", assignee: "Rockonruki"},
-            {user:"Rockonruki", assignee: "numnum"},
-            {user:"numnum", assignee: "angelaa"},
-            {user:"angelaa", assignee: "Becky"},
-            {user:"Becky", assignee: "janamanoharan"},
-            {user:"radsouza", assignee: "kathrynk"},
-            {user:"janamanoharan", assignee: "Shanqiti"},
-            {user:"bkhan1995", assignee: "radsouza"}
-
-    ]
-        console.log('-----------------------------------')
-            for (let i = 0; data.length - 1; i++) {
-                let username = data[i].user
-                console.log(username)
-                Assignments.findOneAndUpdate({user: username}, {assignee: encrypt(data[i].assignee)}, {new: true}, (err, data) => {
-                    console.log(data)
-                })
-            }
-
         Assignments.find({user: username}, (err, data) => {
             // console.log(data)
             if (err || !data || data.length == 0) {
