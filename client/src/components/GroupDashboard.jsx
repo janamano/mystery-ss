@@ -25,7 +25,7 @@ export default function NoGroupDashboard(props) {
         return bytes.toString(CryptoJS.enc.Utf8);
     }
     useEffect(() => {
-        console.log('didmount')
+        console.log('compdidmount')
         const fetchData = async () => {
             await fetch(REMOTE + "/api/getAssignee?username=" + props.username, {
                 method: "GET",
