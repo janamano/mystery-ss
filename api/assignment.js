@@ -1,6 +1,22 @@
 require('dotenv').config()
 var Assignments = require("../db/Assignment");
+var CryptoJS = require("crypto-js");
 
+const decrypt = (data) => {
+    // console.log('---------------------')
+    // console.log(data)
+    // console.log(process.env.SECRET)
+
+    var bytes  = CryptoJS.AES.decrypt(data, process.env.SECRET);  // pass IV
+    // console.log(bytes.toString(CryptoJS.enc.Utf8))
+    // console.log('---------------------')
+
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+function encrypt(data) {
+    var bytes  = CryptoJS.AES.encrypt(data, process.env.SECRET);
+    return bytes.toString();
+}
 
 module.exports = function(app) {
 
@@ -17,7 +33,7 @@ module.exports = function(app) {
             // let current = formData.assignments[i];
             Assignments.create({
                 user: key.toString(),
-                assignee: formData.assignments[key],
+                assignee: encrypt(formData.assignments[key]),
                 group: formData.group 
             }, (err, data) => {
                 if (err) {
@@ -30,12 +46,12 @@ module.exports = function(app) {
 
     });
     app.get('/api/getAssignee', (req, res) => {
-        const username = req.query.username;
-        console.log('username', username)
+        const username = req.query.username
         Assignments.find({user: username}, (err, data) => {
-            if (err) {
+            // console.log(data)
+            if (err || !data || data.length == 0) {
                 return res.status(401).json({
-                    status: 'error', error: err, message: "Cannot get members"
+                    status: 'error', error: err, message: "nice try"
                 })
             } else {
                 return res.status(200).json({

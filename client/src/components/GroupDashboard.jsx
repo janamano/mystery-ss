@@ -14,7 +14,16 @@ export default function NoGroupDashboard(props) {
     const [wishes, setWishes] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    var CryptoJS = require("crypto-js");
 
+    const encrypt = (data) => {
+        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
+        return bytes.toString();
+    }
+    const decrypt = (data) => {
+        var bytes  = CryptoJS.AES.decrypt(data, process.env.REACT_APP_SECRET);  // pass IV
+        return bytes.toString(CryptoJS.enc.Utf8);
+    }
     useEffect(() => {
         console.log('didmount')
         const fetchData = async () => {
@@ -33,7 +42,7 @@ export default function NoGroupDashboard(props) {
                 } else {
                     console.log('jana ->',res.data)
                     if (res.data.length > 0) {
-                        setAssignee(res.data[0].assignee)
+                        setAssignee(decrypt(res.data[0].assignee))
                     }
                 }
             })

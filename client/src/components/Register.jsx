@@ -14,7 +14,12 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('')
     const navigate = useNavigate();
+    var CryptoJS = require("crypto-js");
 
+    const encrypt = (data) => {
+        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
+        return bytes.toString();
+    }
     const home = () => {
         navigate("/")
     }
@@ -29,7 +34,7 @@ export default function Register() {
             body: JSON.stringify({
                 email: email,
                 username: username,
-                password: password
+                password: encrypt(password)
             }),
           })
           .then(res => res.json())

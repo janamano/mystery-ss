@@ -11,11 +11,16 @@ export default function Login() {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('')
     const navigate = useNavigate();
+    var CryptoJS = require("crypto-js");
 
     const home = () => {
         navigate("/")
     }
 
+    const encrypt = (data) => {
+        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
+        return bytes.toString();
+    }
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
         console.log('jana on handler start')

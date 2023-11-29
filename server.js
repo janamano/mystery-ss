@@ -9,9 +9,10 @@ console.log('jana', port)
 app.use(express.json());
 const path = require("path")
 let server = require('http').Server(app);
+const whitelist = ['http://localhost:3000', 'http://localhost:5000','localhost:3000', 'localhost:5000', 'https://mystery-santa.onrender.com']
 app.use(cors( {
   origin: (origin, callback) => {
-    if ('https://mystery-santa.onrender.com'.indexOf(origin) !== -1 || !origin) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
       } else {
           callback(new Error('Not allowed by CORS'))

@@ -3,6 +3,21 @@ const emailExistence = require('email-existence');
 var Users = require("../db/User");
 var Groups = require("../db/Group");
 const Group = require('../db/Group');
+var CryptoJS = require("crypto-js");
+
+
+
+function encrypt(data) {
+    var bytes  = CryptoJS.AES.encrypt(data, process.env.SECRET);
+    return bytes.toString();
+}
+
+function decrypt(data) {
+    var bytes  = CryptoJS.AES.decrypt(data, process.env.SECRET);
+    console.log(bytes.toString(CryptoJS.enc.Utf8), '------------------------------sdd')
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+// Encrypt
 
 // const withAuth = require('./middleware');
 // const bcrypt = require('bcryptjs');
@@ -226,16 +241,14 @@ module.exports = function(app) {
         console.log('janasdsd')
         const [username, password] = [req.query.username, req.query.password];
         console.log('jana on api', username, password)
-        
+       
         Users.findOne({username: username}, async (err, data) => {
             if (err) {
                 return res.status(401).json({
                     status: 'error', error: err, message: "Cannot login"
                 })
             } else {
-                console.log('data jana', data)
-
-                if (data != null && data.password == password) {
+                if (data != null && decrypt(data.password) == password) {
                     var groupInfo = await Groups.findOne({groupID: data.group});
                     return res.status(200).json({
                         status: 'success', data: {
