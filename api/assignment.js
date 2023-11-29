@@ -49,7 +49,7 @@ module.exports = function(app) {
         const username = req.query.username
         Assignments.find({user: username}, (err, data) => {
             // console.log(data)
-            if (err || !data || data.length == 0) {
+            if (err) {
                 return res.status(401).json({
                     status: 'error', error: err, message: "nice try"
                 })
