@@ -15,7 +15,7 @@ const decrypt = (data) => {
 }
 function encrypt(data) {
     var bytes  = CryptoJS.AES.encrypt(data, process.env.SECRET);
-    return bytes.toString();
+    return bytes.toString(CryptoJS.enc.Utf8);
 }
 
 module.exports = function(app) {
@@ -55,7 +55,7 @@ module.exports = function(app) {
                 })
             } else {
                 return res.status(200).json({
-                    status: 'success', data: data
+                    status: 'success', data: [{assignee: decrypt(data[0].assignee)}]
                 }) 
 
             }

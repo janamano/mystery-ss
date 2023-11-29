@@ -46,7 +46,7 @@ export default function NoGroupDashboard(props) {
                 } else {
                     console.log('jana ->',res.data)
                     if (res.data.length > 0) {
-                        setAssignee(decrypt(res.data[0].assignee))
+                        setAssignee(res.data[0].assignee)
                     }
                 }
             })
