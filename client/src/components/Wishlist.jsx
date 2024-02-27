@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Form, Icon, Item, Segment } from 'semantic-ui-react';
 import WishlistItem from './WishlistItem';
 import Modal from 'react-bootstrap/Modal';
-import { REMOTE } from '../endpoints';
+import { LOCAL } from '../endpoints';
 
 export default function Wishlist(props) {
 
@@ -14,7 +14,7 @@ export default function Wishlist(props) {
 
     useEffect(() => {
         const fetchWishes = async () => {
-            await fetch(REMOTE + "/api/getWishes?username=" + props.username, {
+            await fetch(LOCAL + "/api/getWishes?username=" + props.username, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -56,7 +56,7 @@ export default function Wishlist(props) {
             setMessage("Item Name required!")
         } else {
             let wishLink = itemLinkInput.length > 0 ? itemLinkInput : createLink(itemNameInput)
-            await fetch(REMOTE + "/api/createWish", {
+            await fetch(LOCAL + "/api/createWish", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export default function Wishlist(props) {
     }, [createLink, itemLinkInput, itemNameInput, props.username, wishes])
 
     const handleDelete = useCallback((wishId) => {
-        fetch(REMOTE + "/api/deleteWish", {
+        fetch(LOCAL + "/api/deleteWish", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

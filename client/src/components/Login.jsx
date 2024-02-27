@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
-import { REMOTE } from "../endpoints";
+import { LOCAL } from "../endpoints";
 import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 
@@ -11,20 +11,15 @@ export default function Login() {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('')
     const navigate = useNavigate();
-    var CryptoJS = require("crypto-js");
 
     const home = () => {
         navigate("/")
     }
 
-    const encrypt = (data) => {
-        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString();
-    }
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
         console.log('jana on handler start')
-        await fetch(REMOTE + "/api/login?username=" + username + "&password=" + password, {
+        await fetch(LOCAL + "/api/login?username=" + username + "&password=" + password, {
             method: "GET",
             headers: {
                 "Access-Control-Allow-Origin": "*"

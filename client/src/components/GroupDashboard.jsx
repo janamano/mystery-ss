@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { REMOTE } from '../endpoints';
+import { LOCAL } from '../endpoints';
 import { Button, Dimmer, Header, Item, Loader, Menu, Segment, Table } from 'semantic-ui-react';
 import { useLocation, useNavigate } from "react-router-dom";
 import WishlistItem from './WishlistItem';
@@ -14,20 +14,11 @@ export default function NoGroupDashboard(props) {
     const [wishes, setWishes] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    var CryptoJS = require("crypto-js");
-    
-    const encrypt = (data) => {
-        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString();
-    }
-    const decrypt = (data) => {
-        var bytes  = CryptoJS.AES.decrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString(CryptoJS.enc.Utf8);
-    }
+
     useEffect(() => {
         console.log('component did mount')
         const fetchData = async () => {
-            await fetch(REMOTE + "/api/getAssignee?username=" + props.username, {
+            await fetch(LOCAL + "/api/getAssignee?username=" + props.username, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -42,14 +33,14 @@ export default function NoGroupDashboard(props) {
                 } else {
                     console.log('jana ->',res.data)
                     if (res.data.length > 0) {
-                        setAssignee(decrypt(res.data[0].assignee))
+                        setAssignee(res.data[0].assignee)
                     }
                 }
             })
             .catch(err => console.log(err))
         }
         const fetchGroupMembers = async () => {
-            await fetch(REMOTE + "/api/getMembers?group=" + props.groupId, {
+            await fetch(LOCAL + "/api/getMembers?group=" + props.groupId, {
                 method: "GET",
                 headers: {
                     "Access-Control-Allow-Origin": "*"
@@ -80,7 +71,7 @@ export default function NoGroupDashboard(props) {
         if (activeItem == assignee + '\'s wishlist') {
             setLoading(true)
             const fetchWishes = async () => {
-                await fetch(REMOTE + "/api/getWishes?username=" + assignee, {
+                await fetch(LOCAL + "/api/getWishes?username=" + assignee, {
                     method: "GET",
                     headers: {
                         "Access-Control-Allow-Origin": "*"
@@ -136,7 +127,7 @@ export default function NoGroupDashboard(props) {
 
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
       
-        await fetch(REMOTE + "/api/createAssignment", {
+        await fetch(LOCAL + "/api/createAssignment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

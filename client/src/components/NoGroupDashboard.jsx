@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from"react";
 import { Button, Divider, Form, Transition } from "semantic-ui-react";
 import cryptoRandomString from 'crypto-random-string';
-import { REMOTE } from "../endpoints";
+import { LOCAL } from "../endpoints";
 
 export default function NoGroupDashboard(props) {
 
@@ -15,7 +15,7 @@ export default function NoGroupDashboard(props) {
 
     const handleCreateGroupClick = useCallback(async () => {
         const newGroupId = cryptoRandomString({length: 10});
-        await fetch(REMOTE + "/api/createGroup", {
+        await fetch(LOCAL + "/api/createGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export default function NoGroupDashboard(props) {
 
     const handleJoinGroupClick = useCallback(async (event) => {
         event.preventDefault();
-        await fetch(REMOTE + "/api/joinGroup", {
+        await fetch(LOCAL + "/api/joinGroup", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

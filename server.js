@@ -9,9 +9,10 @@ console.log('jana', port)
 app.use(express.json());
 const path = require("path")
 let server = require('http').Server(app);
-const whitelist = ['http://localhost:3000', 'http://localhost:5000','localhost:3000', 'localhost:5000', 'https://mystery-santa.onrender.com']
+const whitelist = ['http://localhost:3000/', 'http://localhost:5000/','localhost:3000', 'localhost:5000', 'https://mystery-santa.onrender.com']
 app.use(cors( {
   origin: (origin, callback) => {
+    console.log('jana here', origin)
     if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
       } else {

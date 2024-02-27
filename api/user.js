@@ -3,20 +3,7 @@ const emailExistence = require('email-existence');
 var Users = require("../db/User");
 var Groups = require("../db/Group");
 const Group = require('../db/Group');
-var CryptoJS = require("crypto-js");
 
-
-
-function encrypt(data) {
-    var bytes  = CryptoJS.AES.encrypt(data, process.env.SECRET);
-    return bytes.toString();
-}
-
-function decrypt(data) {
-    var bytes  = CryptoJS.AES.decrypt(data, process.env.SECRET);
-    console.log(bytes.toString(CryptoJS.enc.Utf8), '------------------------------sdd')
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
 // Encrypt
 
 // const withAuth = require('./middleware');
@@ -248,7 +235,7 @@ module.exports = function(app) {
                     status: 'error', error: err, message: "Cannot login"
                 })
             } else {
-                if (data != null && decrypt(data.password) == password) {
+                if (data != null && data.password == password) {
                     var groupInfo = await Groups.findOne({groupID: data.group});
                     return res.status(200).json({
                         status: 'success', data: {

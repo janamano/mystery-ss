@@ -1,7 +1,7 @@
 // vendor imports
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { REMOTE } from "../endpoints";
+import { LOCAL } from "../endpoints";
 import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
  
 // We import NavLink to utilize the react router.
@@ -14,19 +14,14 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('')
     const navigate = useNavigate();
-    var CryptoJS = require("crypto-js");
 
-    const encrypt = (data) => {
-        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString();
-    }
     const home = () => {
         navigate("/")
     }
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault()
-        await fetch(REMOTE + "/api/signup", {
+        await fetch(LOCAL + "/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -34,7 +29,7 @@ export default function Register() {
             body: JSON.stringify({
                 email: email,
                 username: username,
-                password: encrypt(password)
+                password: password
             }),
           })
           .then(res => res.json())
@@ -47,7 +42,7 @@ export default function Register() {
           })
           .catch(err => console.log(err))
 
-    }, [email, password, username]);
+    }, [email, navigate, password, username]);
 
     return (
         <Container className="container1">
