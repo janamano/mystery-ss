@@ -9,7 +9,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 const Schema = mongoose.Schema;
 
 /**
- * User Schema
+ * Wish Schema
  */
 var wishSchema = new Schema({
     username: {

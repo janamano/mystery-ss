@@ -1,112 +1,95 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { REMOTE } from '../endpoints';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Button, Dimmer, Header, Item, Loader, Menu, Segment, Table } from 'semantic-ui-react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import WishlistItem from './WishlistItem';
 import Wishlist from './Wishlist';
+import { GET_CURRENT_USER_DETAILS, GET_ASSIGNMENT } from './queries/queries';
+import { LOGOUT, CREATE_ASSIGNMENT } from './mutations/mutations';
+import { useQuery, useMutation } from '@apollo/client';
 
-export default function NoGroupDashboard(props) {
+export default function GroupDashboard(props) {
     const [message, setMessage] = useState('');
-    const [assignee, setAssignee] = useState('');
+    const [assignee, setAssignee] = useState(null);
     const [activeItem, setActiveItem] = useState('home')
     // const [groupId, setGroupId] = useState(location.state.group);
     const [groupMembers, setGroupMembers] = useState([]);
     const [wishes, setWishes] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const {data, loading, error} = useQuery(GET_CURRENT_USER_DETAILS);
+    const assignmentDetails = useQuery(GET_ASSIGNMENT, {
+        fetchPolicy: 'cache-and-network'
+    });
+    const [logout, logoutDetails] = useMutation(LOGOUT)
+    const [createAssignments, createAssignmentDetails] = useMutation(CREATE_ASSIGNMENT)
+
+    const [username, setUsername] = useState('')
+    const [groupName, setGroupName] = useState('')
+    const [groupID, setgroupID] = useState('')
+    const [dollarLimit, setDollarLimit] = useState(0)
+    const [isHost, setIsHost] = useState(false)
+    const [groupHost, setGroupHost] = useState('')
+
+
     const navigate = useNavigate();
-    var CryptoJS = require("crypto-js");
-    
-    const encrypt = (data) => {
-        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString();
-    }
-    const decrypt = (data) => {
-        var bytes  = CryptoJS.AES.decrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString(CryptoJS.enc.Utf8);
-    }
-    useEffect(() => {
-        console.log('component did mount')
-        const fetchData = async () => {
-            await fetch(REMOTE + "/api/getAssignee?username=" + props.username, {
-                method: "GET",
-                headers: {
-                    "Access-Control-Allow-Origin": "*"
-                }
-            })
-            .then(res => {
-                console.log('res', res);
-                return res.json()})
-            .then(res => {
-                if (res.status == 'error') {
-                    setMessage(res.message)
-                } else {
-                    console.log('jana ->',res.data)
-                    if (res.data.length > 0) {
-                        setAssignee(decrypt(res.data[0].assignee))
-                    }
-                }
-            })
-            .catch(err => console.log(err))
-        }
-        const fetchGroupMembers = async () => {
-            await fetch(REMOTE + "/api/getMembers?group=" + props.groupId, {
-                method: "GET",
-                headers: {
-                    "Access-Control-Allow-Origin": "*"
-                }
-              })
-              .then(res => res.json())
-              .then(res => {
-                if (res.status == 'error') {
-                    setMessage(res.message)
-                } else {
-                    setGroupMembers(res.data.map(groupObject => {
-                        return {
-                            username: groupObject.username,
-                            email: groupObject.email,
-                            isHost: groupObject.isHost
-                        }
-                    }))
-                }
-              })
-              .catch(err => console.log(err))
-        }
-        fetchData();
-        fetchGroupMembers();
-    }, [])
-
 
     useEffect(() => {
-        if (activeItem == assignee + '\'s wishlist') {
-            setLoading(true)
-            const fetchWishes = async () => {
-                await fetch(REMOTE + "/api/getWishes?username=" + assignee, {
-                    method: "GET",
-                    headers: {
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                })
-                .then(res => {
-                    console.log('res', res);
-                    return res.json()})
-                .then(res => {
-                    if (res.status == 'error') {
-                        setMessage(res.message)
-                    } else {
-                        if (res.data.length > 0) {
-                            console.log(JSON.stringify(res.data));
-                            setWishes(res.data)
-                        }
-                        setLoading(false)
-
-                    }
-                })
-                .catch(err => console.log(err))
+        console.log('from group dashboard', data, loading, error)
+        if (loading == false) {
+            if (data.user != null) {
+                const currentUser = data.user
+                // we can assume that this user has a group
+                setGroupMembers(currentUser.group.groupMembers);
+                setGroupName(currentUser.group.groupName);
+                setUsername(currentUser.username)
+                setgroupID(currentUser.group.groupID)
+                setDollarLimit(currentUser.group.dollarLimit)
+                setGroupHost(currentUser.group.groupHost)
+                setIsHost(currentUser.isHost)
+                setWishes(currentUser.wishes == null ? [] : currentUser.wishes)
             }
-            fetchWishes();
         }
+    }, [data, error, loading])
+    useEffect(() => {
+        if (assignmentDetails.loading == false) {
+            if (assignmentDetails.data.assignment != null) {
+                setAssignee(assignmentDetails.data.assignment.assignee)
+            }
+        }
+    }, [assignmentDetails.data, assignmentDetails.loading])
 
-    }, [activeItem, assignee])
+    const tableOfMembers = useMemo(() => {
+        return (
+            <Table basic='very' celled collapsing>
+            <Table.Header>
+            <Table.Row>
+                <Table.HeaderCell>Username</Table.HeaderCell>
+                <Table.HeaderCell>Email</Table.HeaderCell>
+            </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {groupMembers.map(member => {
+                return <Table.Row>
+                    <Table.Cell floated='left'>{member.username}</Table.Cell>
+                    <Table.Cell>{member.email}</Table.Cell>
+                    </Table.Row>
+                })}
+            </Table.Body>
+        </Table>
+        )
+    }, [groupMembers])
+    
+    const redirectToHome = useCallback(() => {
+        navigate("/", {
+            state: {
+                loggedOut: true
+            }
+        })
+    }, [navigate])
+
+    const handleLogout = useCallback(() => {
+        logout({
+            onCompleted: redirectToHome
+        })
+    }, [logout, redirectToHome])
 
     const handleDrawClick = useCallback(async () => {
         // randomly assign values
@@ -114,7 +97,6 @@ export default function NoGroupDashboard(props) {
         let groupMembersUsernames = groupMembers.map((member) => {
             return member.username
         });
-        console.log('jana members before', groupMembersUsernames)
         let currentIndex = groupMembersUsernames.length,  randomIndex;
 
         // While there remain elements to shuffle.
@@ -135,31 +117,30 @@ export default function NoGroupDashboard(props) {
 
 
         assignments[groupMembersUsernames[groupMembersUsernames.length - 1].toString()] = groupMembersUsernames[0].toString()
-      
-        await fetch(REMOTE + "/api/createAssignment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({assignments: assignments, group: props.groupId}),
-          })
-          .then(res => res.json())
-          .then(res => {
-            console.log(res)
-            if (res.status == 'error') {
-                setMessage(res.msg)
-            } else {
-                setMessage("success, login again to see your assignee")
+        console.log('assignment', assignments)
+        
+        for (var key in assignments) {
+            createAssignments({
+                variables: {
+                    assignee: assignments[key],
+                    user: key,
+                    group: groupID
+                }
+            })
+            console.log("creating assignments", key)
+        }
+        console.log('after loop')
+        assignmentDetails.refetch().then(() => {
+            setActiveItem('home')
+        })
 
-            }
-          })
-          .catch(err => console.log(err))
 
-    }, [groupMembers, props.groupId])
+    }, [assignmentDetails, createAssignments, groupID, groupMembers])
 
     return (
         <React.Fragment>
-      <Menu pointing secondary>
+        <h1>Hello, {username}</h1>
+        <Menu pointing secondary>
         <Menu.Menu>
             <Menu.Item
                 name='home'
@@ -177,88 +158,68 @@ export default function NoGroupDashboard(props) {
             active={activeItem === 'wishlist'}
             onClick={() => {setActiveItem('wishlist')}}
         />
-        {(assignee == null || assignee.length != 0) &&
+        {(assignee != null) &&
             <Menu.Item
-            name={assignee + '\'s wishlist'}
-            active={activeItem === assignee + '\'s wishlist'}
-            onClick={() => {setActiveItem(assignee + '\'s wishlist')}}
+            name={assignee.username + '\'s wishlist'}
+            active={activeItem === assignee.username + '\'s wishlist'}
+            onClick={() => {setActiveItem(assignee.username + '\'s wishlist')}}
         />
         }
         <Menu.Menu position='right'>
             <Menu.Item
             name='logout'
             active={activeItem === 'logout'}
-            onClick={() => {navigate("/")}}
+            onClick={handleLogout}
             />
         </Menu.Menu>
         </Menu>
         {activeItem === 'home' &&
-        <Segment>
-            <Header as='h3'>Hello, {props.username}</Header>
-            <p>You are part of group "{props.groupName}".</p>
-            {assignee.length > 0 &&
             <React.Fragment>
-                <p>You have to provide a gift to {assignee}.</p>
-                <Button className='wishlistButton' color='pink' onClick={() => {setActiveItem(assignee + '\'s wishlist')}}>Go to their wishlist</Button>
-            </React.Fragment>
-            }
-            {props.isHost && <p>The group ID is <b>{props.groupId}</b></p>}
-            <p>The dollar limit for this group is ${props.dollarLimit}</p>
-        </Segment>}
+            {loading == true ? 
+                <Dimmer active inverted>
+                    <Loader inverted content='Loading' />
+                </Dimmer> :
+                <Segment>
+                    <Header as='h3'>Hello, {username}</Header>
+                    <p>You are part of group "{groupName}".</p>
+                    {assignee != null &&
+                    //  TODO
+                    <React.Fragment>
+                        <p>You have to provide a gift to {assignee.username}.</p>
+                        <Button className='wishlistButton' color='pink' onClick={() => {setActiveItem(assignee.username + '\'s wishlist')}}>Go to their wishlist</Button>
+                    </React.Fragment>
+                    }
+                    {isHost && <p>The group ID is <b>{groupID}</b></p>}
+                    <p>The dollar limit for this group is ${dollarLimit}</p>
+            </Segment>}
+        </React.Fragment>}
             {activeItem === 'groupInfo' &&
             <Segment>
+                {isHost == true ?
+                    <div>
+                        <p>You are the host of this group</p>
+                        <p>Group Members:</p>
+                        {tableOfMembers}
+                        {assignee == null &&
 
-                {props.isHost == true ?
-                <div>
-                    <p>You are the host of this group</p>
-                    <Table basic='very' celled collapsing>
-                        <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>Username</Table.HeaderCell>
-                            <Table.HeaderCell>Email</Table.HeaderCell>
-                        </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {groupMembers.map(member => {
-                            return <Table.Row>
-                                <Table.Cell floated='left'>{member.username}</Table.Cell>
-                                <Table.Cell>{member.email}</Table.Cell>
-                                </Table.Row>
-                            })}
-                        </Table.Body>
-                    </Table>
+                        <Button onClick={handleDrawClick}>Assign Santas</Button>}
+                    </div> :
+                    <div>
+                       {assignee == null && <p>Wait til the host ({groupHost}) starts the secret santa</p>}
+                        <p>Group Members:</p>
+                        {tableOfMembers}
 
-                    {(assignee == null || assignee.length == 0) &&
-                    <Button onClick={handleDrawClick}>Click here to randomly assign secret santas for this group and send out emails to inform everyone</Button>}
-                </div> :
-                <div>
-                    <p>Wait til the host ({props.groupHost}) starts the secret santa</p>
-                    <p>Group Members:</p>
-                    <Table basic='very' celled collapsing>
-                        <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>Username</Table.HeaderCell>
-                            <Table.HeaderCell>Email</Table.HeaderCell>
-                        </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {groupMembers.map(member => {
-                            return <Table.Row>
-                                <Table.Cell floated='left'>{member.username}</Table.Cell>
-                                <Table.Cell>{member.email}</Table.Cell>
-                                </Table.Row>
-                            })}
-                        </Table.Body>
-                    </Table>
-                </div>}
+                    </div>
+                }
             </Segment>
             }
             {activeItem == 'wishlist' &&
-                <Wishlist username={props.username} />
+                <Wishlist wishes={wishes} />
             }
-            {assignee.length > 0 && activeItem == assignee + '\'s wishlist' &&
+            {assignee != null && activeItem == assignee.username + '\'s wishlist' &&
             <React.Fragment>
-                {loading ? 
+
+                {assignee == null ? 
                 <Segment>
                     <Dimmer active inverted>
                         <Loader inverted content='Loading' />
@@ -267,16 +228,14 @@ export default function NoGroupDashboard(props) {
                 </Segment> :
                 <Segment>
                     <Item.Group divided>
-                        {wishes.length == 0 && <p>{assignee} has not made any wishes yet.</p>}
-                        {wishes.map((wishItem) => {
+                        {assignee.wishes.length == 0 && <p>{assignee.username} has not made any wishes yet.</p>}
+                        {assignee.wishes.map((wishItem) => {
                             return <WishlistItem itemName={wishItem.wishName} itemLink={wishItem.wishLink} showControls={false}/>
                         })}
                     </Item.Group>
                 </Segment>}
 
-            </React.Fragment>
-            
-            }
+            </React.Fragment>}
         </React.Fragment>
     );
 }

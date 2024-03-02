@@ -1,14 +1,35 @@
 // vendor imports
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Container, Divider, Header, Image, Message } from "semantic-ui-react";
 import "../styles/styles.css";
-// We import NavLink to utilize the react router.
-// import { NavLink } from "react-router-dom";
+
+import { useQuery } from '@apollo/client';
+import { GET_CURRENT_USER } from "./queries/queries";
  
 // Here, we display our Navbar
 export default function Main() {
     const navigate = useNavigate();
+    const { loading, error, data } = useQuery(GET_CURRENT_USER, {
+        fetchPolicy: 'cache-and-network'
+    })
+    const location = useLocation()
+
+    useEffect(() => {
+        // componentDidUpdate
+            if (loading == false) {
+                if (data.user != null) {
+                    navigate('/home', {
+                        state: {
+                            data
+                        }
+                    })
+                }
+            }
+        // }
+
+
+    }, [data, loading, location.state, navigate])
 
     const register = () => {
         navigate("/register")

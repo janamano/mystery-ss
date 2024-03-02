@@ -1,53 +1,46 @@
 // vendor imports
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { REMOTE } from "../endpoints";
 import { Button, Container, Divider, Form, Header } from "semantic-ui-react";
- 
-// We import NavLink to utilize the react router.
-// import { NavLink } from "react-router-dom";
- 
-// Here, we display our Navbar
-export default function Register() {
+import { CREATE_USER } from "./mutations/mutations";
+import { useMutation } from "@apollo/client";
+
+ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('')
+    const [createUser, {date, loading, error}] = useMutation(CREATE_USER)
     const navigate = useNavigate();
-    var CryptoJS = require("crypto-js");
 
-    const encrypt = (data) => {
-        var bytes  = CryptoJS.AES.encrypt(data, process.env.REACT_APP_SECRET);  // pass IV
-        return bytes.toString();
-    }
     const home = () => {
         navigate("/")
     }
+    const redirectToHomePage = useCallback(() => {
+        console.log('jana in register redirecting')
+        navigate('/home')
+    }, [navigate]);
 
-    const handleSubmit = useCallback(async (event) => {
-        event.preventDefault()
-        await fetch(REMOTE + "/api/signup", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+    useEffect(() => {
+        if (error != null) {
+            setMessage(error.message)
+        }
+    }, [error]);
+
+    const handleSubmit = useCallback((event) => {
+        event.preventDefault();
+        if (message.length > 0) {
+            setMessage('')
+        }
+        createUser({
+            variables: {
+                email,
+                username,
+                password
             },
-            body: JSON.stringify({
-                email: email,
-                username: username,
-                password: encrypt(password)
-            }),
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status == 'error') {
-                setMessage(res.msg)
-            } else {
-                navigate('/login')
-            }
-          })
-          .catch(err => console.log(err))
-
-    }, [email, password, username]);
+            onCompleted: redirectToHomePage
+        })
+    }, [createUser, email, message, password, redirectToHomePage, username])
 
     return (
         <Container className="container1">
@@ -71,7 +64,7 @@ export default function Register() {
 
                 </Form.Group>
             </Form>
-            <p>{message}</p>
+            <div className="errorMessages">{message}</div>
         </Container>
     );
 }

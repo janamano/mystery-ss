@@ -1,67 +1,59 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");
 var mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')
+const  createHandler = require('graphql-http/lib/use/express').createHandler;
 require("dotenv").config();
 const port = process.env.PORT || 5000;
-console.log('jana', port)
+const schema = require('./schema/schema');
+const expressPlayground =
+  require('graphql-playground-middleware-express').default;
+const { ApolloServer } = require('apollo-server-express');
 
 app.use(express.json());
-const path = require("path")
-let server = require('http').Server(app);
-const whitelist = ['http://localhost:3000', 'http://localhost:5000','localhost:3000', 'localhost:5000', 'https://mystery-santa.onrender.com']
-app.use(cors( {
-  origin: (origin, callback) => {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-          callback(null, true)
-      } else {
-          callback(new Error('Not allowed by CORS'))
-      }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200
-}))
-// var https = require('https');
-// var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-// var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
-// var credentials = {key: privateKey, cert: certificate};
-// app.use(require("./routes/record"));
-// get driver connection
-// const dbo = require("./db/conn");
+const path = require("path");
+const session = require("express-session");
+
 const Db = process.env.MONGO_URL;
-console.log('jana', Db);
+// console.log('jana', Db);
 // connects our back end code with the database
 mongoose.connect(Db, { useNewUrlParser: true, useUnifiedTopology: true}).catch(function (reason) {
     console.log('Unable to connect to the mongodb instance. Error: ', reason);
 });
-const user = require('./api/user.js')(app);
-const assignments = require('./api/assignment.js')(app);
-const groups = require('./api/group.js')(app);
-const wishes = require('./api/wish.js')(app);
+
+
+app.use(
+  session({
+    name: 'qid',
+    resave: false,
+    saveUninitialized: false,
+    secret: 'ilovedoggos',
+    store: MongoStore.create({
+      mongoUrl: Db
+    })
+  })
+)
+
+
+const apollo = new ApolloServer({
+  schema,
+  context: ({req, res}) => ({
+    req
+  }),
+});
+
+apollo.start().then(() => {
+  apollo.applyMiddleware({ app })
+})
+
+app.get('/playground', expressPlayground({ endpoint: '/graphql' }));
 
 app.use(express.static(path.join(__dirname, "client", "build")))
 
-// ...
-// Right before your app.listen(), add this:
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
-
-
-server.listen(port, () => {
-  // perform a database connection when server starts
-//   dbo.connectToServer(function (err) {
-//     if (err) console.error(err);
- 
-//   });
+app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
-// app.listen(port, () => {
-//   // perform a database connection when server starts
-// //   dbo.connectToServer(function (err) {
-// //     if (err) console.error(err);
- 
-// //   });
-//   console.log(`Server is running on port: ${port}`);
-// });
