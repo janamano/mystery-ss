@@ -1,89 +1,72 @@
 // imports
-import React, { useState, useCallback } from"react";
+import React, { useState, useCallback, useEffect } from"react";
 import { Button, Divider, Form, Transition } from "semantic-ui-react";
-import cryptoRandomString from 'crypto-random-string';
-import { LOCAL } from "../endpoints";
+import { useMutation } from '@apollo/client'
+import { GET_CURRENT_USER, GET_CURRENT_USER_DETAILS } from "./queries/queries";
 
+import { CREATE_GROUP, JOIN_GROUP, LOGOUT } from "./mutations/mutations";
+import { useNavigate } from "react-router-dom";
 export default function NoGroupDashboard(props) {
 
     // create group
     const [groupName, setGroupName] = useState('');
-    const [dollarLimit, setDollarLimit] = useState('');
+    const [dollarLimit, setDollarLimit] = useState(0);
     const [createFormVisible, setCreateFormVisible] = useState(false);
     const [userInputGroupId, setUserInputGroupId] = useState('');
     const [message, setMessage] = useState('');
+    const [createGroup, {data: createData, loading: createLoading, error: createError}] = useMutation(CREATE_GROUP);
+    const [joinGroup, {data: joinData, loading: joinLoading, error: joinError}] = useMutation(JOIN_GROUP);
+    const [logout, logoutDetails] = useMutation(LOGOUT)
+    const navigate = useNavigate();
 
-    const handleCreateGroupClick = useCallback(async () => {
-        const newGroupId = cryptoRandomString({length: 10});
-        await fetch(LOCAL + "/api/createGroup", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
+    useEffect(() => {
+        if (joinError != null) {
+            setMessage(joinError.message)
+        }
+    }, [joinError]);
+
+    const handleCreateGroupClick = useCallback(() => {
+        createGroup({
+            variables: {
+                groupName,
+                dollarLimit
             },
-            body: JSON.stringify({
-                email: props.email,
-                username: props.username,
-                group: newGroupId,
-                groupName: groupName,
-                dollarLimit: dollarLimit
-            }),
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === 'error') {
-                setMessage(res.message)
-            } else {
-                console.log('jana res data', res.data)
+            refetchQueries: [
+                GET_CURRENT_USER,
+                GET_CURRENT_USER_DETAILS
+            ] 
+        })
+    }, [createGroup, dollarLimit, groupName])
 
-                // todo: redirect to group page
-                props.setGroupId(res.data.group);
-                props.setGroupName(res.data.groupName);
-                props.setDollarLimit(res.data.dollarLimit);
-                props.setIsHost(true);
-                props.setGroupHost(res.data.groupHost)
-
-                setMessage('')
-
-            }
-          })
-          .catch(err => console.log(err))
-    }, [props, groupName, dollarLimit]);
-
-    const handleJoinGroupClick = useCallback(async (event) => {
-        event.preventDefault();
-        await fetch(LOCAL + "/api/joinGroup", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
+    const handleJoinGroupClick = useCallback(() => {
+        joinGroup({
+            variables: {
+                groupID: userInputGroupId
             },
-            body: JSON.stringify({
-                email: props.email,
-                username: props.username,
-                group: userInputGroupId
-            }),
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === 'error') {
-                setMessage(res.message)
-            } else {
-                console.log('jana res data', res.data)
-                props.setGroupId(res.data.group);
-                props.setGroupName(res.data.groupName);
-                props.setDollarLimit(res.data.dollarLimit);
+            refetchQueries: [
+                GET_CURRENT_USER,
+                GET_CURRENT_USER_DETAILS
+            ]
+        })
+    }, [joinGroup, userInputGroupId])
 
-                props.setIsHost(res.data.isHost);
-                props.setGroupHost(res.data.groupHost)
-                
-                setMessage('')
-
+    const redirectToHome = useCallback(() => {
+        navigate("/", {
+            state: {
+                loggedOut: true
             }
-          })
-          .catch(err => console.log(err))
-    }, [props, userInputGroupId]);
+        })
+    }, [navigate])
+
+    const handleLogout = useCallback(() => {
+        logout({
+            onCompleted: redirectToHome
+        })
+    }, [logout, redirectToHome])
 
     return (
         <div>
+            {/* <h1>Hello, {username}</h1> */}
             <p>You are not part of a secret santa group. Here are your options:</p>
             {/* <Button onClick={handleCreateGroupClick}>Create a group</Button> */}
             <p>Click here to create a group</p>
@@ -93,15 +76,12 @@ export default function NoGroupDashboard(props) {
                 <Form>
                     <Form.Input label="Enter Group Name"onChange={(event) => {
                     setGroupName(event.target.value)
-                    console.log(groupName)
 
                 }}  value={groupName} />
                     <Form.Input label="Enter Dollar Limit" onChange={(event) => {
-                    setDollarLimit(event.target.value)
-                    console.log(dollarLimit)
+                    setDollarLimit(Number(event.target.value))
                 }}  value={dollarLimit}/>
                     <Form.Button onClick={handleCreateGroupClick}>Create a group</Form.Button>
-                
                 </Form>
                 
             </Transition>
@@ -113,7 +93,9 @@ export default function NoGroupDashboard(props) {
                     setUserInputGroupId(event.target.value)
                 }}  value={userInputGroupId}  />                        
                 <Form.Button onClick={handleJoinGroupClick}>Join Group</Form.Button>
+                <div className="errorMessages">{message}</div>
             </Form>
+            <Button onClick={handleLogout}>Logout</Button>
             {message.length > 0  && <p>{message}</p>}
         </div>
     )

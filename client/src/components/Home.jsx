@@ -1,63 +1,58 @@
 // vendor imports
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
-import { Container, Divider, Header } from "semantic-ui-react";
+import { Button, Container, Divider, Header, Loader } from "semantic-ui-react";
 import NoGroupDashboard from "./NoGroupDashboard";
 import GroupDashboard from "./GroupDashboard";
-
+import { useQuery } from '@apollo/client';
+import { GET_CURRENT_USER } from "./queries/queries";
 export default function Home() {
     const location = useLocation();
-    
-    const username = useState(location.state.username)[0];
-    const email = useState(location.state.email)[0];
-    const [groupId, setGroupId] = useState(location.state.group);
-    const [groupName, setGroupName] = useState(location.state.groupName);
-    const [dollarLimit, setDollarLimit] = useState(location.state.dollarLimit);
-    
-    const [isHost, setIsHost] = useState(location.state.isHost);
-    const [groupHost, setGroupHost] = useState(location.state.groupHost);
+    const [hasGroup, setHasGroup] = useState(false)
+    const {loading, error, data, refetch} = useQuery(GET_CURRENT_USER, {
+        fetchPolicy: 'cache-and-network'
+    })
+    console.log('data in home', data)
 
-    /**
-     * first = marie
-     * mut = [marie, kajan]
-     * actual = [marie, kajan, rukh, jana]
-     * marie -> rukh
-     * kajan -> jana
-     * kajan
-     * 
-     */
+    useEffect(() => {
+        console.log('useEffect data in home', loading, error, data)
+
+        if (loading == false) {
+            if (data.user != null) {
+                if (data.user.group != null) {
+                    setHasGroup(true)
+                } else {
+                    setHasGroup(false)
+                }
+            } else {
+                refetch()
+            }
+            console.log('jana', data, error)
+        }
+    }, [data, error, loading, refetch])
 
     return (
-        <React.Fragment>
-            <Container className="container1">
-                <Header textAlign="center" as='h1'>Super Minimalistic Secret Santa App Home page</Header>
-                <Divider/>
-            </Container>
-            <Container className="ui homeContainer">
+            loading == true ?
+                <React.Fragment>
+                    <Container className="container1">
+                        <Loader></Loader>
+                    </Container> 
+                </React.Fragment> :
+                <React.Fragment>
+                    <Container className="container1">
+                        <Header textAlign="center" as='h1'>Super Minimalistic Secret Santa App Home page</Header>
+                        <Divider/>
+                    </Container>
+                    <Container className="ui homeContainer">
 
-                {groupId == null 
-                    ? <NoGroupDashboard 
-                        email={email}
-                        username={username}
-                        setGroupId={setGroupId}
-                        setDollarLimit={setDollarLimit} 
-                        setGroupName={setGroupName}
-                        setGroupHost={setGroupHost}
-                        setIsHost={setIsHost} />
-                        
-                    : <GroupDashboard 
-                        email={email}
-                        isHost={isHost} 
-                        username={username}
-                        groupId={groupId}
-                        groupName={groupName}
-                        groupHost={groupHost}
-                        dollarLimit={dollarLimit}/>
-                }
-                <br></br>
-            </Container>
-        </React.Fragment>
-
+                        {hasGroup
+                            ? <GroupDashboard  />    
+                            : <NoGroupDashboard />
+                        }
+                        <br></br>
+                    </Container>
+                </React.Fragment> 
+        
     );
 }
